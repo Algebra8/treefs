@@ -199,6 +199,15 @@ func (t TreeFS) Meta() string {
 	return fmt.Sprintf("%d %s, %d %s", t.NDirs, dirs, t.NFiles, files)
 }
 
+// Recursively generate the tree of the TreeFS treefs.
+//
+// XXX(algebra8):
+//	This implementation for recursively creating a filesystem tree is inspired
+//	by the Python tutorial "Build a Python Directory Tree Generator for the
+//	Command Line" at realpython.com
+//	(https://realpython.com/directory-tree-generator-python/).
+//
+//	Credits to the author, Leodanis Pozo Ramos.
 func treeFSWithPrefix(treeFS *TreeFS, name, prefix string) (err error) {
 	var entries []fs.DirEntry
 	if entries, err = fs.ReadDir(treeFS.fsys, name); err != nil {
