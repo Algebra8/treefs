@@ -114,6 +114,33 @@ const (
 	spacePrefix = "    "
 )
 
+// Tree returns the graph, and metadata, of the fs.FS fsys with name name.
+func Tree(fsys fs.FS, name string) (string, error) {
+	tfs, err := New(fsys, name)
+	if err != nil {
+		return "", err
+	}
+	return tfs.String(), nil
+}
+
+// Graph returns only the graph of the fs.FS fsys with name name.
+func Graph(fsys fs.FS, name string) (string, error) {
+	tfs, err := New(fsys, name)
+	if err != nil {
+		return "", err
+	}
+	return tfs.Graph(), nil
+}
+
+// Meta returns only the stringified metadata of the fs.FS fsys with name name.
+func Meta(fsys fs.FS, name string) (string, error) {
+	tfs, err := New(fsys, name)
+	if err != nil {
+		return "", err
+	}
+	return tfs.Meta(), nil
+}
+
 // New returns a TreeFS whose stringer interface implementation returns the
 // graph for the fs.FS fsys and name name, similar to the `tree` command.
 //
