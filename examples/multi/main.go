@@ -25,24 +25,58 @@ SOFTWARE.
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
 	"github.com/Algebra8/treefs"
 )
 
+var (
+	hidden        bool
+	dirOnly       bool
+	fullFilePath  bool
+	maxDepthLevel int
+)
+
+func init() {
+	flag.BoolVar(&hidden, "a", false, `
+Include directory entries whose names begin with a dot ('.') except for . and 
+...`[1:])
+	flag.BoolVar(&dirOnly, "d", false, "List directoris only")
+	flag.BoolVar(&fullFilePath, "f", false, "Prints the full path prefix for each file")
+	flag.IntVar(&maxDepthLevel, "L", -1, "Max display depth of the directory tree")
+}
+
 func main() {
-	args := os.Args
-	if len(args) < 2 {
-		fmt.Fprintf(os.Stderr, "%s [directory ...]\n", args[0])
+	flag.Parse()
+
+	args := flag.Args()
+	if len(args) < 1 {
+		fmt.Fprintf(os.Stderr, "%s [-adfL] [directory ...]\n", args[0])
 		os.Exit(1)
 	}
 
+	var opts []treefs.Opt
+	if hidden {
+		// Allow hidden directories and entries to be shown.
+		opts = append(opts, treefs.Hidden)
+	}
+	if dirOnly {
+		opts = append(opts, treefs.DirOnly)
+	}
+	if fullFilePath {
+		opts = append(opts, treefs.FullPathPrefix)
+	}
+	// Level is idempotent if maxDepthLevel is less than zero (default).
+	opts = append(opts, treefs.Level(maxDepthLevel))
+
 	var tfsArgs []treefs.Arg
-	for _, dir := range args[1:] {
+	for _, dir := range args {
 		tfsArgs = append(tfsArgs, treefs.Arg{
 			Fsys: os.DirFS(dir),
 			Name: dir,
+			Opts: opts,
 		})
 	}
 
